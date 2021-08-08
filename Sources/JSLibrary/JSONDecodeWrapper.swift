@@ -10,18 +10,18 @@ public protocol JSONStringConverterAvailable {
     static var defaultValue: Bool { get }
 }
 
-public enum JSONDecoderWrapper {
-    public typealias EmptyString = Wrapper<JSONDecoderWrapper.TypeCase.EmptyString>
-    public typealias True = Wrapper<JSONDecoderWrapper.TypeCase.True>
-    public typealias False = Wrapper<JSONDecoderWrapper.TypeCase.False>
-    public typealias IntZero = Wrapper<JSONDecoderWrapper.TypeCase.Zero<Int>>
-    public typealias DoubleZero = Wrapper<JSONDecoderWrapper.TypeCase.Zero<Double>>
-    public typealias FloatZero = Wrapper<JSONDecoderWrapper.TypeCase.Zero<Float>>
-    public typealias CGFloatZero = Wrapper<JSONDecoderWrapper.TypeCase.Zero<CGFloat>>
-    public typealias StringFalse = StringConverterWrapper<JSONDecoderWrapper.TypeCase.StringFalse>
-    public typealias StringTrue = StringConverterWrapper<JSONDecoderWrapper.TypeCase.StringTrue>
-    public typealias EmptyList<T: Decodable & ExpressibleByArrayLiteral> = Wrapper<JSONDecoderWrapper.TypeCase.List<T>>
-    public typealias EmptyDict<T: Decodable & ExpressibleByDictionaryLiteral> = Wrapper<JSONDecoderWrapper.TypeCase.Dict<T>>
+public enum JSWrapper {
+    public typealias EmptyString = Wrapper<JSWrapper.TypeCase.EmptyString>
+    public typealias True = Wrapper<JSWrapper.TypeCase.True>
+    public typealias False = Wrapper<JSWrapper.TypeCase.False>
+    public typealias IntZero = Wrapper<JSWrapper.TypeCase.Zero<Int>>
+    public typealias DoubleZero = Wrapper<JSWrapper.TypeCase.Zero<Double>>
+    public typealias FloatZero = Wrapper<JSWrapper.TypeCase.Zero<Float>>
+    public typealias CGFloatZero = Wrapper<JSWrapper.TypeCase.Zero<CGFloat>>
+    public typealias StringFalse = StringConverterWrapper<JSWrapper.TypeCase.StringFalse>
+    public typealias StringTrue = StringConverterWrapper<JSWrapper.TypeCase.StringTrue>
+    public typealias EmptyList<T: Decodable & ExpressibleByArrayLiteral> = Wrapper<JSWrapper.TypeCase.List<T>>
+    public typealias EmptyDict<T: Decodable & ExpressibleByDictionaryLiteral> = Wrapper<JSWrapper.TypeCase.Dict<T>>
     
     // Property Wrapper - Optional Type to Type
     @propertyWrapper
@@ -95,21 +95,21 @@ public enum JSONDecoderWrapper {
     }
 }
 
-extension JSONDecoderWrapper.Wrapper: Decodable {
+extension JSWrapper.Wrapper: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.wrappedValue = try container.decode(ValueType.self)
     }
 }
 
-extension JSONDecoderWrapper.StringConverterWrapper: Decodable {
+extension JSWrapper.StringConverterWrapper: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.wrappedValue = (try container.decode(String.self)) == "Y"
     }
 }
 
-extension JSONDecoderWrapper.TimestampToOptionalDate: Decodable {
+extension JSWrapper.TimestampToOptionalDate: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let timestamp = try container.decode(Double.self)
@@ -119,15 +119,15 @@ extension JSONDecoderWrapper.TimestampToOptionalDate: Decodable {
 }
 
 extension KeyedDecodingContainer {
-    public func decode<T: JSONDecoderWrapperAvailable>(_ type: JSONDecoderWrapper.Wrapper<T>.Type, forKey key: Key) throws -> JSONDecoderWrapper.Wrapper<T> {
+    public func decode<T: JSONDecoderWrapperAvailable>(_ type: JSWrapper.Wrapper<T>.Type, forKey key: Key) throws -> JSWrapper.Wrapper<T> {
         try decodeIfPresent(type, forKey: key) ?? .init()
     }
     
-    public func decode<T: JSONStringConverterAvailable>(_ type: JSONDecoderWrapper.StringConverterWrapper<T>.Type, forKey key: Key) throws -> JSONDecoderWrapper.StringConverterWrapper<T> {
+    public func decode<T: JSONStringConverterAvailable>(_ type: JSWrapper.StringConverterWrapper<T>.Type, forKey key: Key) throws -> JSWrapper.StringConverterWrapper<T> {
         try decodeIfPresent(type, forKey: key) ?? .init()
     }
     
-    public func decode(_ type: JSONDecoderWrapper.TimestampToOptionalDate.Type, forKey key: Key) throws -> JSONDecoderWrapper.TimestampToOptionalDate {
+    public func decode(_ type: JSWrapper.TimestampToOptionalDate.Type, forKey key: Key) throws -> JSWrapper.TimestampToOptionalDate {
         try decodeIfPresent(type, forKey: key) ?? .init()
     }
 }
